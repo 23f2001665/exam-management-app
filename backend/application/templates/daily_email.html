@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Examination Reminder</title>
+</head>
+<body>
+
+    <h2>Hello {{ user.full_name }},</h2>
+
+    {% if examinations %}
+
+        <p>You have the following examination(s) scheduled for tomorrow.</p>
+
+        {% for examination in examinations %}
+
+        <hr>
+
+        <table border="1" cellpadding="6" cellspacing="0">
+            <tr>
+                <th align="left">Examination</th>
+                <td>{{ examination.examination_name }}</td>
+            </tr>
+            <tr>
+                <th align="left">Course</th>
+                <td>{{ examination.course_name }}</td>
+            </tr>
+            <tr>
+                <th align="left">Date</th>
+                <td>{{ examination.examination_date.strftime("%d %b %Y") }}</td>
+            </tr>
+            <tr>
+                <th align="left">Start Time</th>
+                <td>{{ examination.slot_start_time.strftime("%H:%M") }}</td>
+            </tr>
+            <tr>
+                <th align="left">Assigned Examiner</th>
+                <td>{{ examination.examiner_id }}</td>
+            </tr>
+        </table>
+
+        <h3>Instructions</h3>
+
+        <ul>
+            <li>Reach the examination hall at least 15 minutes early.</li>
+            <li>Carry a valid ID proof.</li>
+            <li>Bring any required equipment/instructions for the examination.</li>
+            <li>Follow all instructions given by the examiner.</li>
+        </ul>
+
+    {% else %}
+
+        <p>You have no upcoming examinations scheduled for tomorrow.</p>
+
+    {% endif %}
+
+    <p>
+        Regards,<br>
+        Examination Management Team
+    </p>
+
+</body>
+</html>

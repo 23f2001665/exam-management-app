@@ -1,0 +1,18 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Examination Management Portal backend"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "argon2-cffi>=25.1.0",
+    "celery>=5.6.3",
+    "faker>=37.5.3",
+    "flask-caching>=2.4.1",
+    "flask-cors>=6.0.5",
+    "flask-mail>=0.10.0",
+    "flask-session>=0.8.0",
+    "flask-sqlalchemy>=3.1.1",
+    "python-dotenv>=1.2.2",
+    "redis>=8.0.1",
+]

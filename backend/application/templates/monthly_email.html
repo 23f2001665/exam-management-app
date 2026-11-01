@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Monthly Examination Report</title>
+</head>
+<body>
+
+    <h2>Monthly Examination Report</h2>
+
+    <p>
+        This is the examination activity summary for
+        <strong>{{ year_month }}</strong>.
+    </p>
+
+    <table border="1" cellpadding="6" cellspacing="0">
+        <tr>
+            <th align="left">Examinations Conducted</th>
+            <td>{{ total_examinations_conducted }}</td>
+        </tr>
+        <tr>
+            <th align="left">Students Evaluated</th>
+            <td>{{ total_students_evaluated }}</td>
+        </tr>
+        <tr>
+            <th align="left">Completed Bookings</th>
+            <td>{{ total_completed_bookings }}</td>
+        </tr>
+        <tr>
+            <th align="left">Pending Evaluations</th>
+            <td>{{ pending_evaluations }}</td>
+        </tr>
+    </table>
+
+    <br>
+
+    <h3>Most Active Examiners</h3>
+
+    {% if active_examiners %}
+
+    <table border="1" cellpadding="6" cellspacing="0">
+        <tr>
+            <th>Rank</th>
+            <th>Examiner</th>
+            <th>Evaluated Bookings</th>
+        </tr>
+
+        {% for examiner in active_examiners %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ examiner.examiner_email }}</td>
+            <td>{{ examiner.evaluated_bookings }}</td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+    {% else %}
+
+    <p>No examinations were conducted this month.</p>
+
+    {% endif %}
+
+    <br>
+
+    <p>
+        This report was generated automatically by the Examination Management System.
+    </p>
+
+    <p>
+        Regards,<br>
+        Examination Management System
+    </p>
+
+</body>
+</html>

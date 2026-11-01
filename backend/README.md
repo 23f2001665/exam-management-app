@@ -10,6 +10,36 @@ It follows the same architecture and conventions as the sample backend of the `t
 - Then use the extension in the `routes.py` or `models.py` or wherever needed.
 - Finally, the `app` is created in `__init__.py` and then run in `app.py`.
 
+## Overview
+
+The **Examination Management Portal (EMP)** is a web application that allows Admins, Examiners and
+Students to interact with the examination management system based on their roles.
+
+Based on the project problem statement, the portal supports:
+
+- **Admin**: creates courses, examinations (with slot creation/booking windows, duration, max marks,
+  examiner assignment) and rubrics; manages users/examiners (create examiner, activate/deactivate);
+  publishes exam results; views reports/dashboard.
+- **Examiner**: creates/manages examination slots (date, time, capacity, meeting link); books
+  evaluations for booked students.
+- **Student**: registers, browses/exams, books examination slots (capacity + unique booking per
+  student per exam enforced by DB constraint), views own bookings.
+
+Examination lifecycle (status state machine):
+
+`draft -> slot_creation -> booking_open -> closed -> completed`
+
+- `draft` → `slot_creation` (examiner creates slots)
+- `slot_creation` → `booking_open` (booking window opens)
+- `booking_open -> closed` (booking window closes)
+- `closed -> completed` (results submitted/completed; results can be published)
+
+Reporting & notifications:
+
+- CSV examination history export (`send_report` Celery task + `/summary/export` endpoints).
+- Daily email with tomorrow's examinations (`send_daily_email`).
+- Monthly email report with examination activity (`send_monthly_email`).
+
 ## Modules
 
 - `application/config.py` — configuration (Redis, Celery, Mail, Session, SQLAlchemy, Admin).
@@ -21,23 +51,51 @@ It follows the same architecture and conventions as the sample backend of the `t
 - `application/schedules.py` — Celery beat schedule.
 - `application/templates/` — Email templates (daily + monthly).
 
-## Endpoints
+## Installation
 
-- `POST /login`, `POST /logout`, `POST /register`, `GET|PATCH /user_info`
-- `GET /users/all`, `GET|PATCH /users/<user_id>`, `POST /users/<user_id>/activate|deactivate`, `POST /users/create_examiner`
-- `GET /courses/all`, `POST /courses/create`, `GET|PATCH|DELETE /courses/<course_id>`
-- `GET /examinations/all`, `POST /examinations/create`, `GET|PATCH|DELETE /examinations/<examination_id>`, `PATCH /examinations/<examination_id>/status`, `PATCH /examinations/<examination_id>/assign_examiner`, `POST /examinations/<examination_id>/publish_results`
-- `POST /rubrics/create`, `GET /rubrics/examination/<examination_id>`, `GET|PATCH|DELETE /rubrics/<rubric_id>`
-- `POST /slots/create`, `GET /slots/all`, `GET /slots/examination/<examination_id>`, `GET /slots/examination/<examination_id>/booked_students`, `PATCH|DELETE /slots/<slot_id>`
-- `POST /bookings/create`, `GET|PATCH /bookings/<booking_id>`, `POST /bookings/<booking_id>/reschedule`, `GET /bookings/all`, `GET /bookings/examination/<examination_id>`
-- `POST /evaluations/create`, `GET /evaluations/pending`, `GET /evaluations/all`, `GET /evaluations/examination/<examination_id>`
-- `GET /summary/users`, `GET /summary/examinations`, `GET /summary/bookings`, `GET /summary/dashboard`, `GET /summary/export`, `GET /summary/export/<task_id>`
+### Backend
+
+Prerequisites: **Python 3.14**, **uv**, **Redis**.
+
+1. Create/use the Python virtual environment (e.g. `~/Documents/web-venv`) and install backend dependencies:
+
+```bash
+cd backend
+uv pip install --python /home/himanshu/Documents/web-venv/bin/python -r pyproject.toml
+```
+
+2. Make sure `Redis` is running (e.g. `redis-server`).
+
+3. Provide the required mail configuration in the environment / `backend/.env` (at minimum `MAIL_USERNAME` and `MAIL_PASSWORD`; the backend fails at startup if these are missing):
+
+```
+MAIL_USERNAME=you@example.com
+MAIL_PASSWORD=your-mail-app-password
+```
+
+4. (Optional) Admin credentials via `ADMIN_EMAIL`, `ADMIN_PASSWORD`, etc.
+
+### Frontend
+
+Prerequisites: **Node.js 22+**, **npm**, `@angular/material`, etc. (frontend dependencies installed via `npm install` inside `frontend/`).
+
+### Full stack (backend + celery + frontend) via devstack
+
+```bash
+./devstack.sh
+```
+
+### Full stack via Docker
+
+```bash
+docker compose up --build -d
+```
+
+(The backend container reads the required mail entries from the root `.env`; without them it exits at startup.)
 
 ## Run
 
-The backend uses a `backend` package layout (same as the sample backend of the
-`trekking-app`), so the stack can be started with module-style commands from the
-repository root:
+The backend uses a `backend` package layout (same as the sample backend of the `trekking-app`), so the stack can be started with module-style commands from the repository root:
 
 ```bash
 python -m backend.app
@@ -55,13 +113,35 @@ The Flask API listens on port `5050` by default (`FLASK_RUN_PORT` overrides it).
 
 ## Celery
 
-`backend.celery_worker` creates the Flask app and wires the Celery broker/config
-at import time, so the worker and beat can be pointed at it:
+`backend.celery_worker` creates the Flask app and wires the Celery broker/config at import time, so the worker and beat can be pointed at it:
 
 ```bash
 celery -A backend.celery_worker.celery worker --loglevel=info
 celery -A backend.celery_worker.celery beat --loglevel=info
 ```
+
+## Endpoints
+
+- `POST /login`, `POST /logout`, `POST /register`, `GET|PATCH /user_info`
+- `GET /users/all`, `GET|PATCH /users/<user_id>`, `POST /users/<user_id>/activate|deactivate`, `POST /users/create_examiner`
+- `GET /courses/all`, `POST /courses/create`, `GET|PATCH|DELETE /courses/<course_id>`
+- `GET /examinations/all`, `POST /examinations/create`, `GET|PATCH|DELETE /examinations/<examination_id>`, `PATCH /examinations/<examination_id>/status`, `PATCH /examinations/<examination_id>/assign_examiner`, `POST /examinations/<examination_id>/publish_results`
+- `POST /rubrics/create`, `GET /rubrics/examination/<examination_id>`, `GET|PATCH|DELETE /rubrics/<rubric_id>`
+- `POST /slots/create`, `GET /slots/all`, `GET /slots/examination/<examination_id>`, `GET /slots/examination/<examination_id>/booked_students`, `PATCH|DELETE /slots/<slot_id>`
+- `POST /bookings/create`, `GET|PATCH /bookings/<booking_id>`, `POST /bookings/<booking_id>/reschedule`, `GET /bookings/all`, `GET /bookings/examination/<examination_id>`
+- `POST /evaluations/create`, `GET /evaluations/pending`, `GET /evaluations/all`, `GET /evaluations/examination/<examination_id>`
+- `GET /summary/users`, `GET /summary/examinations`, `GET /summary/bookings`, `GET /summary/dashboard`, `GET /summary/export`, `GET /summary/export/<task_id>`
+
+## Docker
+
+The full stack can be run with Docker Compose (backend + frontend + redis + celery):
+
+```bash
+docker compose up --build -d
+```
+
+The backend container requires the `MAIL_USERNAME` and `MAIL_PASSWORD` entries in the root `.env`
+(failing at startup when they are missing).
 
 ## Seed
 

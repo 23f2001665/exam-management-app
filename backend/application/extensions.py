@@ -54,7 +54,7 @@ def cors_config(app):
     """
     CORS(app,
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
-        resources={r"/*": {"origins": ["http://localhost:5173", "http://localhost:4200"]}},
+        resources={r"/*": {"origins": ["http://localhost:5173", "http://localhost:4200", "http://localhost:8080"]}},
          supports_credentials=True
         )
     

@@ -165,6 +165,14 @@ def create_app():
     app.extended_config = Config  # Load configuration from config.py
     app.config.from_object(Config)  # Load configuration from config.py
 
+    # Fail fast when the required mail credentials are not configured, so the
+    # backend (e.g. the Docker image) does not start without a usable .env.
+    if not app.config.get('MAIL_USERNAME') or not app.config.get('MAIL_PASSWORD'):
+        raise RuntimeError(
+            'Missing mail configuration: the MAIL_USERNAME and MAIL_PASSWORD entries are '
+            'required. Set them in the environment or in backend/.env before starting the backend.'
+        )
+
     # extensions setup
     init_extensions(app)
     init_celery(app)

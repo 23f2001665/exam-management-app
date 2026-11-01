@@ -1,0 +1,99 @@
+<app-page-header title="Examination Details" subtitle="Pick an available slot to book">
+  <a mat-button routerLink="/student/examinations">
+    <mat-icon>arrow_back</mat-icon>
+    Back to Examinations
+  </a>
+</app-page-header>
+
+@if (loading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (!loading() && loadFailed()) {
+  <app-empty-state
+    icon="error_outline"
+    title="Unable to load this examination"
+    description="It may no longer be open for booking, or you may not have access to it."
+  >
+    <a mat-flat-button color="primary" routerLink="/student/examinations">Back to Examinations</a>
+  </app-empty-state>
+}
+
+@if (!loading() && !loadFailed() && examination(); as exam) {
+  <mat-card appearance="outlined" class="summary-card">
+    <mat-card-header>
+      <mat-card-title>{{ exam.name }}</mat-card-title>
+      <mat-card-subtitle>{{ courseLabel() }}</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="summary-facts">
+        <app-status-chip [status]="exam.status" />
+        <div class="summary-fact">
+          <mat-icon>category</mat-icon>
+          <span>{{ typeLabel() }}</span>
+        </div>
+        <div class="summary-fact">
+          <mat-icon>schedule</mat-icon>
+          <span>{{ exam.duration }} min</span>
+        </div>
+        <div class="summary-fact">
+          <mat-icon>grade</mat-icon>
+          <span>{{ exam.max_marks }} marks</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  @if (existingBooking(); as booking) {
+    <app-empty-state
+      icon="event_available"
+      title="You already have a booking for this examination"
+      [description]="
+        'Status: ' + booking.status + '. You can only hold one booking per examination.'
+      "
+    >
+      <a mat-flat-button color="primary" routerLink="/student/bookings">View My Bookings</a>
+    </app-empty-state>
+  } @else if (sortedSlots().length === 0) {
+    <app-empty-state
+      icon="event_busy"
+      title="No slots available yet"
+      description="The examiner hasn't published any slots for this examination yet. Check back soon."
+    />
+  } @else {
+    <h2 class="section-title">Available Slots</h2>
+    <div class="slot-grid">
+      @for (slot of sortedSlots(); track slot.id) {
+        <mat-card appearance="outlined" class="slot-card">
+          <mat-card-content>
+            <div class="slot-card__header">
+              <mat-icon>event</mat-icon>
+              <span class="slot-card__date">{{ slot.date }}</span>
+            </div>
+            <div class="slot-card__time">{{ slot.start_time }} - {{ slot.end_time }}</div>
+            <div class="slot-card__meta">
+              <app-status-chip [status]="slot.status" />
+              <span class="slot-card__seats">
+                {{ slot.available_seats }} / {{ slot.max_capacity }} seats left
+              </span>
+            </div>
+          </mat-card-content>
+          <mat-card-actions align="end">
+            <button
+              mat-flat-button
+              color="primary"
+              [disabled]="slot.status !== 'available' || slot.available_seats <= 0 || bookingSlotId() !== null"
+              (click)="book(slot)"
+            >
+              @if (bookingSlotId() === slot.id) {
+                <mat-spinner diameter="18" />
+              } @else {
+                Book this Slot
+              }
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+}

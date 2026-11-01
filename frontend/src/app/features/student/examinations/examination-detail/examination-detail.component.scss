@@ -1,0 +1,64 @@
+.summary-card {
+  margin-bottom: 1.5rem;
+}
+
+.summary-facts {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.summary-fact {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--mat-sys-on-surface-variant, #5f6368);
+}
+
+.summary-fact mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem;
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.slot-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.slot-card__date {
+  font-weight: 600;
+}
+
+.slot-card__time {
+  font-size: 0.95rem;
+  margin-bottom: 0.6rem;
+}
+
+.slot-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.slot-card__seats {
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant, #5f6368);
+}

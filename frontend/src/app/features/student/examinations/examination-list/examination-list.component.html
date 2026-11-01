@@ -1,0 +1,55 @@
+<app-page-header
+  title="Examinations"
+  subtitle="Browse examinations currently open for booking"
+/>
+
+@if (loading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (isEmpty()) {
+  <app-empty-state
+    icon="fact_check"
+    title="No examinations open for booking right now"
+    description="Check back later - new examinations will appear here once booking opens."
+  />
+} @else {
+  <div class="exam-grid">
+    @for (card of cards(); track card.examination.id) {
+      <mat-card appearance="outlined" class="exam-card">
+        <mat-card-header>
+          <mat-card-title>{{ card.examination.name }}</mat-card-title>
+          <mat-card-subtitle>{{ card.courseLabel }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="exam-card__chips">
+            <app-status-chip [status]="card.examination.status" />
+            <span class="exam-card__type">{{ card.typeLabel }}</span>
+          </div>
+          <div class="exam-card__facts">
+            <div class="exam-card__fact">
+              <mat-icon>schedule</mat-icon>
+              <span>{{ card.examination.duration }} min</span>
+            </div>
+            <div class="exam-card__fact">
+              <mat-icon>grade</mat-icon>
+              <span>{{ card.examination.max_marks }} marks</span>
+            </div>
+          </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          @if (card.alreadyBooked) {
+            <a mat-button routerLink="/student/bookings">
+              <mat-icon>event_available</mat-icon>
+              View Booking
+            </a>
+          } @else {
+            <a mat-flat-button color="primary" [routerLink]="['/student/examinations', card.examination.id]">
+              View Slots &amp; Book
+            </a>
+          }
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+}

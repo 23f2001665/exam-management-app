@@ -1,0 +1,91 @@
+.shell {
+  height: 100dvh;
+}
+
+.shell__sidenav {
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.1));
+}
+
+.shell__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.shell__nav-item--active {
+  background: light-dark(rgba(0, 0, 0, 0.05), rgba(255, 255, 255, 0.08));
+  font-weight: 600;
+}
+
+.shell__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.shell__toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.shell__user-menu-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.shell__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.shell__username {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shell__user-menu-header {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 1rem;
+  line-height: 1.4;
+}
+
+.shell__user-menu-header span {
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant, light-dark(rgba(0, 0, 0, 0.6), rgba(255, 255, 255, 0.7)));
+}
+
+.shell__content {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 599px) {
+  .shell__username {
+    display: none;
+  }
+
+  .shell__content {
+    padding: 1rem;
+  }
+}

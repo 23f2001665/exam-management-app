@@ -1,0 +1,229 @@
+@if (loading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (examination(); as exam) {
+  <app-page-header [title]="exam.name" [subtitle]="course()?.name ?? ''">
+    <button mat-stroked-button routerLink="/admin/examinations">
+      <mat-icon>arrow_back</mat-icon>
+      Back to List
+    </button>
+    <button mat-stroked-button (click)="editExamination()">
+      <mat-icon>edit</mat-icon>
+      Edit
+    </button>
+    <button mat-stroked-button color="warn" (click)="deleteExamination()">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button>
+  </app-page-header>
+
+  <div class="summary-grid">
+    <mat-card appearance="outlined">
+      <mat-card-content class="summary-content">
+        <div class="summary-row">
+          <span class="summary-label">Status</span>
+          <app-status-chip [status]="exam.status" />
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Type</span>
+          <span>{{ typeLabels[exam.type] }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Duration</span>
+          <span>{{ exam.duration }} min</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Max Marks</span>
+          <span>{{ exam.max_marks }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Results Published</span>
+          <span>{{ exam.results_published ? 'Yes' : 'No' }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>Lifecycle</mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="summary-content">
+        @if (nextStatus(); as next) {
+          <p>Advance this examination to the next stage in its lifecycle.</p>
+          <button mat-flat-button color="primary" [disabled]="advancing()" (click)="advanceStatus()">
+            <mat-icon>arrow_forward</mat-icon>
+            Move to {{ statusLabels[next] }}
+          </button>
+        } @else {
+          <p>This examination has reached its final status.</p>
+        }
+        @if (canPublishResults()) {
+          <button mat-flat-button color="accent" [disabled]="publishing()" (click)="publishResults()">
+            <mat-icon>publish</mat-icon>
+            Publish Results
+          </button>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>Examiner</mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="summary-content">
+        <mat-form-field appearance="outline">
+          <mat-label>Assigned Examiner</mat-label>
+          <mat-select
+            [value]="selectedExaminerId()"
+            (selectionChange)="selectedExaminerId.set($event.value)">
+            @for (examiner of examiners(); track examiner.id) {
+              <mat-option [value]="examiner.id">
+                {{ examiner.first_name }} {{ examiner.last_name }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <button
+          mat-stroked-button
+          [disabled]="assigning() || !selectedExaminerId() || selectedExaminerId() === exam.examiner_id"
+          (click)="assignExaminer()">
+          Assign Examiner
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-tab-group class="detail-tabs">
+    <mat-tab label="Rubrics">
+      <div class="tab-panel">
+        <div class="tab-panel__header">
+          <h3>Evaluation Rubrics</h3>
+          <button mat-flat-button color="primary" (click)="openCreateRubricDialog()">
+            <mat-icon>add</mat-icon>
+            Add Rubric
+          </button>
+        </div>
+        @if (rubrics().length === 0) {
+          <app-empty-state icon="rule" title="No rubrics defined" description="Add evaluation criteria for this examination." />
+        } @else {
+          <div class="table-container">
+            <table mat-table [dataSource]="rubrics()" class="mat-elevation-z1">
+              <ng-container matColumnDef="criterion_name">
+                <th mat-header-cell *matHeaderCellDef>Criterion</th>
+                <td mat-cell *matCellDef="let r">{{ r.criterion_name }}</td>
+              </ng-container>
+              <ng-container matColumnDef="max_marks">
+                <th mat-header-cell *matHeaderCellDef>Max Marks</th>
+                <td mat-cell *matCellDef="let r">{{ r.max_marks }}</td>
+              </ng-container>
+              <ng-container matColumnDef="weightage">
+                <th mat-header-cell *matHeaderCellDef>Weightage</th>
+                <td mat-cell *matCellDef="let r">{{ r.weightage }}</td>
+              </ng-container>
+              <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef>Description</th>
+                <td mat-cell *matCellDef="let r">{{ r.description || '—' }}</td>
+              </ng-container>
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let r">
+                  <button mat-icon-button matTooltip="Edit" (click)="openEditRubricDialog(r)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button matTooltip="Delete" color="warn" (click)="deleteRubric(r)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="rubricColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: rubricColumns"></tr>
+            </table>
+          </div>
+        }
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Slots">
+      <div class="tab-panel">
+        <h3>Examination Slots</h3>
+        @if (slots().length === 0) {
+          <app-empty-state icon="event" title="No slots created" description="The assigned examiner has not created slots yet." />
+        } @else {
+          <div class="table-container">
+            <table mat-table [dataSource]="slots()" class="mat-elevation-z1">
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef>Date</th>
+                <td mat-cell *matCellDef="let s">{{ s.date }}</td>
+              </ng-container>
+              <ng-container matColumnDef="time">
+                <th mat-header-cell *matHeaderCellDef>Time</th>
+                <td mat-cell *matCellDef="let s">{{ s.start_time }} – {{ s.end_time }}</td>
+              </ng-container>
+              <ng-container matColumnDef="capacity">
+                <th mat-header-cell *matHeaderCellDef>Capacity</th>
+                <td mat-cell *matCellDef="let s">{{ s.max_capacity }}</td>
+              </ng-container>
+              <ng-container matColumnDef="available">
+                <th mat-header-cell *matHeaderCellDef>Available</th>
+                <td mat-cell *matCellDef="let s">{{ s.available_seats }}</td>
+              </ng-container>
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let s">
+                  <app-status-chip [status]="s.status" />
+                </td>
+              </ng-container>
+              <ng-container matColumnDef="meeting">
+                <th mat-header-cell *matHeaderCellDef>Meeting Link</th>
+                <td mat-cell *matCellDef="let s">
+                  @if (s.meeting_link) {
+                    <a [href]="s.meeting_link" target="_blank" rel="noopener">Join</a>
+                  } @else {
+                    —
+                  }
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="slotColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: slotColumns"></tr>
+            </table>
+          </div>
+        }
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Bookings">
+      <div class="tab-panel">
+        <h3>Student Bookings</h3>
+        @if (bookings().length === 0) {
+          <app-empty-state icon="event_available" title="No bookings yet" description="No students have booked a slot yet." />
+        } @else {
+          <div class="table-container">
+            <table mat-table [dataSource]="bookings()" class="mat-elevation-z1">
+              <ng-container matColumnDef="student">
+                <th mat-header-cell *matHeaderCellDef>Student</th>
+                <td mat-cell *matCellDef="let b">{{ studentLabel(b.student_id) }}</td>
+              </ng-container>
+              <ng-container matColumnDef="slot">
+                <th mat-header-cell *matHeaderCellDef>Slot ID</th>
+                <td mat-cell *matCellDef="let b">#{{ b.slot_id }}</td>
+              </ng-container>
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef>Booked On</th>
+                <td mat-cell *matCellDef="let b">{{ b.booking_date }}</td>
+              </ng-container>
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef>Status</th>
+                <td mat-cell *matCellDef="let b">
+                  <app-status-chip [status]="b.status" />
+                </td>
+              </ng-container>
+              <tr mat-header-row *matHeaderRowDef="bookingColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: bookingColumns"></tr>
+            </table>
+          </div>
+        }
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+}

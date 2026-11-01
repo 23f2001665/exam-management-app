@@ -1,0 +1,101 @@
+<app-page-header
+  title="Results &amp; Export"
+  subtitle="Generate a CSV export of your evaluation results"
+>
+  <button mat-flat-button color="primary" [disabled]="isBusy()" (click)="requestExport()">
+    <mat-icon>file_download</mat-icon>
+    @if (state() === 'idle' || state() === 'failure' || state() === 'timeout') {
+      Request Export
+    } @else {
+      Re-run Export
+    }
+  </button>
+</app-page-header>
+
+@if (state() === 'idle') {
+  <app-empty-state
+    icon="summarize"
+    title="No export generated yet"
+    description="Request an export to generate a CSV of your evaluation results. This runs as a background job and may take a few seconds."
+  />
+}
+
+@if (isBusy()) {
+  <mat-card appearance="outlined" class="status-card">
+    <mat-card-content>
+      <mat-spinner diameter="28" />
+      <span>
+        @if (state() === 'requesting') {
+          Starting export job...
+        } @else {
+          Processing your export - this can take a few seconds...
+        }
+      </span>
+    </mat-card-content>
+  </mat-card>
+}
+
+@if (state() === 'timeout') {
+  <app-empty-state
+    icon="hourglass_empty"
+    title="Still processing"
+    description="The export is taking longer than expected. This usually means the background worker is busy or unavailable - please try again shortly."
+  >
+    <button mat-stroked-button (click)="requestExport()">Try Again</button>
+  </app-empty-state>
+}
+
+@if (state() === 'failure') {
+  <app-empty-state
+    icon="error_outline"
+    title="Export failed"
+    [description]="errorMessage() ?? 'Something went wrong while generating your export.'"
+  >
+    <button mat-stroked-button (click)="requestExport()">Try Again</button>
+  </app-empty-state>
+}
+
+@if (state() === 'success') {
+  <mat-card appearance="outlined" class="results-card">
+    <mat-card-header>
+      <mat-card-title>Export Results</mat-card-title>
+      <mat-card-subtitle>{{ dataRows().length }} row(s)</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      @if (!hasResults()) {
+        <app-empty-state
+          icon="inbox"
+          title="No result rows"
+          description="Your export completed but contained no rows yet - this is expected if no evaluations have been submitted for you."
+        />
+      } @else {
+        <div class="table-scroll">
+          <table class="csv-table">
+            <thead>
+              <tr>
+                @for (col of header(); track $index) {
+                  <th>{{ col }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of dataRows(); track $index) {
+                <tr>
+                  @for (cell of row; track $index) {
+                    <td>{{ cell }}</td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button mat-flat-button color="primary" (click)="download()">
+        <mat-icon>download</mat-icon>
+        Download CSV
+      </button>
+    </mat-card-actions>
+  </mat-card>
+}

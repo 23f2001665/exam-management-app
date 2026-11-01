@@ -1,0 +1,10 @@
+.table-container {
+  overflow-x: auto;
+  background: var(--mat-sys-surface, #fff);
+  border-radius: 8px;
+}
+
+table {
+  width: 100%;
+  min-width: 680px;
+}

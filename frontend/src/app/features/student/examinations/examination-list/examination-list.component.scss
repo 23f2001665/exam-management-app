@@ -1,0 +1,48 @@
+.exam-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.exam-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.exam-card__chips {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.exam-card__type {
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant, #5f6368);
+  text-transform: capitalize;
+}
+
+.exam-card__facts {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.exam-card__fact {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--mat-sys-on-surface-variant, #5f6368);
+}
+
+.exam-card__fact mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+mat-card-actions {
+  margin-top: auto;
+}

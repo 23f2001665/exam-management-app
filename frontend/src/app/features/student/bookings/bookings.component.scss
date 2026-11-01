@@ -1,0 +1,29 @@
+.booking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.booking-card__main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.booking-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.booking-card__title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.booking-card__meta {
+  font-size: 0.8rem;
+  color: var(--mat-sys-on-surface-variant, #5f6368);
+}

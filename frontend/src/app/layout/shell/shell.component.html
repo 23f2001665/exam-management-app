@@ -1,0 +1,60 @@
+<mat-sidenav-container class="shell">
+  <mat-sidenav
+    class="shell__sidenav"
+    [mode]="isHandset() ? 'over' : 'side'"
+    [opened]="isHandset() ? sidenavOpened() : true"
+    (closedStart)="sidenavOpened.set(false)"
+  >
+    <div class="shell__brand">
+      <mat-icon>school</mat-icon>
+      <span>Exam Portal</span>
+    </div>
+    <mat-nav-list>
+      @for (item of navItems(); track item.path) {
+        <a
+          mat-list-item
+          [routerLink]="item.path"
+          routerLinkActive="shell__nav-item--active"
+          (click)="isHandset() && sidenavOpened.set(false)"
+        >
+          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar class="shell__toolbar" color="primary">
+      @if (isHandset()) {
+        <button mat-icon-button (click)="toggleSidenav()" aria-label="Toggle navigation">
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
+      <span class="shell__toolbar-spacer"></span>
+
+      <app-theme-toggle />
+
+      <button mat-button [matMenuTriggerFor]="userMenu" class="shell__user-menu-trigger">
+        <span class="shell__avatar">{{ initials() }}</span>
+        <span class="shell__username">{{ currentUser()?.full_name ?? currentUser()?.first_name }}</span>
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #userMenu="matMenu">
+        <div class="shell__user-menu-header">
+          <strong>{{ currentUser()?.full_name ?? currentUser()?.first_name }}</strong>
+          <span>{{ roleLabel() }}</span>
+        </div>
+        <mat-divider />
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>Log out</span>
+        </button>
+      </mat-menu>
+    </mat-toolbar>
+
+    <main class="shell__content">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

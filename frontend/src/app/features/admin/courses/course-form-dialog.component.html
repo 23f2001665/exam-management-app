@@ -1,0 +1,40 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edit Course' : 'New Course' }}</h2>
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="form-content">
+    <mat-form-field appearance="outline">
+      <mat-label>Course Code</mat-label>
+      <input matInput formControlName="code" placeholder="e.g. CS101" />
+      @if (form.controls.code.hasError('required')) {
+        <mat-error>Course code is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Course Name</mat-label>
+      <input matInput formControlName="name" placeholder="e.g. Data Structures" />
+      @if (form.controls.name.hasError('required')) {
+        <mat-error>Course name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option value="active">Active</mat-option>
+        <mat-option value="inactive">Inactive</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="dialogRef.close()">Cancel</button>
+    <button mat-flat-button color="primary" type="submit">
+      {{ isEdit ? 'Save Changes' : 'Create Course' }}
+    </button>
+  </mat-dialog-actions>
+</form>

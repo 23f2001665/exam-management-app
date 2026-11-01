@@ -1,0 +1,56 @@
+<app-page-header title="My Bookings" subtitle="Examinations you've reserved a slot for">
+  <a mat-flat-button color="primary" routerLink="/student/examinations">
+    <mat-icon>add</mat-icon>
+    Book an Examination
+  </a>
+</app-page-header>
+
+@if (loading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (isEmpty()) {
+  <app-empty-state
+    icon="event_busy"
+    title="You haven't booked any examinations yet"
+    description="Browse examinations currently open for booking to reserve a slot."
+  >
+    <a mat-flat-button color="primary" routerLink="/student/examinations">
+      Browse Examinations
+    </a>
+  </app-empty-state>
+} @else {
+  <div class="booking-list">
+    @for (row of rows(); track row.booking.id) {
+      <mat-card appearance="outlined" class="booking-card">
+        <mat-card-content>
+          <div class="booking-card__main">
+            <div class="booking-card__text">
+              <span class="booking-card__title">{{ row.examinationName }}</span>
+              @if (row.slotDate) {
+                <span class="booking-card__meta">{{ row.slotDate }} &middot; {{ row.slotTime }}</span>
+              } @else {
+                <span class="booking-card__meta">Slot details unavailable</span>
+              }
+              <span class="booking-card__meta">Booked on {{ row.booking.booking_date }}</span>
+            </div>
+            <app-status-chip [status]="row.booking.status" />
+          </div>
+        </mat-card-content>
+        @if (row.booking.status === 'booked') {
+          <mat-card-actions align="end">
+            <button
+              mat-stroked-button
+              color="warn"
+              [disabled]="cancellingId() === row.booking.id"
+              (click)="cancel(row)"
+            >
+              <mat-icon>cancel</mat-icon>
+              Cancel Booking
+            </button>
+          </mat-card-actions>
+        }
+      </mat-card>
+    }
+  </div>
+}

@@ -1,0 +1,119 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edit Examination' : 'New Examination' }}</h2>
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="form-content">
+    <mat-form-field appearance="outline">
+      <mat-label>Course</mat-label>
+      <mat-select formControlName="course_id">
+        @for (course of courses$ | async; track course.id) {
+          <mat-option [value]="course.id">{{ course.code }} — {{ course.name }}</mat-option>
+        }
+      </mat-select>
+      @if (form.controls.course_id.hasError('required')) {
+        <mat-error>Course is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Examination Name</mat-label>
+      <input matInput formControlName="name" />
+      @if (form.controls.name.hasError('required')) {
+        <mat-error>Name is required</mat-error>
+      }
+    </mat-form-field>
+
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Type</mat-label>
+        <mat-select formControlName="type">
+          <mat-option value="assessment">Assessment</mat-option>
+          <mat-option value="viva">Viva</mat-option>
+          <mat-option value="practical">Practical</mat-option>
+          <mat-option value="project_demo">Project Demo</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Duration (minutes)</mat-label>
+        <input matInput type="number" formControlName="duration" min="1" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Max Marks</mat-label>
+        <input matInput type="number" formControlName="max_marks" min="1" />
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Examiner (optional)</mat-label>
+      <mat-select formControlName="examiner_id">
+        <mat-option [value]="null">— Unassigned —</mat-option>
+        @for (examiner of examiners$ | async; track examiner.id) {
+          <mat-option [value]="examiner.id">{{ examiner.first_name }} {{ examiner.last_name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <h3 class="section-title">Slot Creation Window</h3>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Start Date</mat-label>
+        <input matInput [matDatepicker]="scsPicker" formControlName="slotCreationStartDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="scsPicker" />
+        <mat-datepicker #scsPicker />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Start Time</mat-label>
+        <input matInput type="time" formControlName="slotCreationStartTime" />
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>End Date</mat-label>
+        <input matInput [matDatepicker]="scePicker" formControlName="slotCreationEndDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="scePicker" />
+        <mat-datepicker #scePicker />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>End Time</mat-label>
+        <input matInput type="time" formControlName="slotCreationEndTime" />
+      </mat-form-field>
+    </div>
+
+    <h3 class="section-title">Slot Booking Window</h3>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>Start Date</mat-label>
+        <input matInput [matDatepicker]="sbsPicker" formControlName="slotBookingStartDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="sbsPicker" />
+        <mat-datepicker #sbsPicker />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Start Time</mat-label>
+        <input matInput type="time" formControlName="slotBookingStartTime" />
+      </mat-form-field>
+    </div>
+    <div class="row">
+      <mat-form-field appearance="outline">
+        <mat-label>End Date</mat-label>
+        <input matInput [matDatepicker]="sbePicker" formControlName="slotBookingEndDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="sbePicker" />
+        <mat-datepicker #sbePicker />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>End Time</mat-label>
+        <input matInput type="time" formControlName="slotBookingEndTime" />
+      </mat-form-field>
+    </div>
+
+    @if (formError()) {
+      <p class="form-error">{{ formError() }}</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="dialogRef.close()">Cancel</button>
+    <button mat-flat-button color="primary" type="submit">
+      {{ isEdit ? 'Save Changes' : 'Create Examination' }}
+    </button>
+  </mat-dialog-actions>
+</form>

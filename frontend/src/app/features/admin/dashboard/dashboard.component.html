@@ -1,0 +1,81 @@
+<app-page-header title="Admin Dashboard" subtitle="Overview of courses, examinations and users" />
+
+@if (loading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (dashboard(); as _) {
+  <div class="stat-grid">
+    @for (card of statCards(); track card.label) {
+      <app-stat-card
+        [icon]="card.icon"
+        [label]="card.label"
+        [value]="card.value"
+        [tone]="card.tone"
+        [link]="card.link"
+      />
+    }
+  </div>
+
+  <div class="breakdown-grid">
+    @if (userSummary(); as users) {
+      <mat-card appearance="outlined" class="breakdown-card">
+        <mat-card-header>
+          <mat-card-title>User Breakdown</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="breakdown-row">
+            <span>Active students</span>
+            <strong>{{ users.active_students }}</strong>
+          </div>
+          <div class="breakdown-row">
+            <span>Inactive students</span>
+            <strong>{{ users.inactive_students }}</strong>
+          </div>
+          <div class="breakdown-row">
+            <span>Active examiners</span>
+            <strong>{{ users.active_examiners }}</strong>
+          </div>
+          <div class="breakdown-row">
+            <span>Inactive examiners</span>
+            <strong>{{ users.inactive_examiners }}</strong>
+          </div>
+          <div class="breakdown-row">
+            <span>Admins</span>
+            <strong>{{ users.admins }}</strong>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    @if (examinationsSummary(); as exams) {
+      <mat-card appearance="outlined" class="breakdown-card">
+        <mat-card-header>
+          <mat-card-title>Examination Breakdown</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="breakdown-row">
+            <span>Draft</span>
+            <strong>{{ exams.draft_examinations }}</strong>
+          </div>
+          <div class="breakdown-row">
+            <span>Slot creation</span>
+            <strong>{{ exams.slot_creation_examinations }}</strong>
+          </div>
+          <div class="breakdown-row">
+            <span>Booking open</span>
+            <strong>{{ exams.booking_open_examinations }}</strong>
+          </div>
+          <div class="breakdown-row">
+            <span>Closed</span>
+            <strong>{{ exams.closed_examinations }}</strong>
+          </div>
+          <div class="breakdown-row">
+            <span>Completed</span>
+            <strong>{{ exams.completed_examinations }}</strong>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+}

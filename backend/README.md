@@ -35,20 +35,36 @@ It follows the same architecture and conventions as the sample backend of the `t
 
 ## Run
 
+The backend uses a `backend` package layout (same as the sample backend of the
+`trekking-app`), so the stack can be started with module-style commands from the
+repository root:
+
+```bash
+python -m backend.app
+```
+
+or with the backend's own uv environment:
+
 ```bash
 cd backend
 uv sync
-uv run flask --app app run   # or: python app.py
+uv run flask --app backend.app run
 ```
+
+The Flask API listens on port `5050` by default (`FLASK_RUN_PORT` overrides it).
 
 ## Celery
 
-`application.celery` is the bare Celery instance; it's only wired up with
-its Redis broker config and Flask app context when `create_app()` runs.
-Point the worker/beat at `celery_worker.py` instead, which creates the app
-before Celery starts:
+`backend.celery_worker` creates the Flask app and wires the Celery broker/config
+at import time, so the worker and beat can be pointed at it:
 
 ```bash
-celery -A celery_worker.celery worker --loglevel=info
-celery -A celery_worker.celery beat --loglevel=info
+celery -A backend.celery_worker.celery worker --loglevel=info
+celery -A backend.celery_worker.celery beat --loglevel=info
+```
+
+## Seed
+
+```bash
+python -m backend.seed
 ```

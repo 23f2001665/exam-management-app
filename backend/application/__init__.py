@@ -158,7 +158,10 @@ def create_admin_user(app):
         
 # app setup
 def create_app():
-    app = Flask(__name__)
+    # Use the 'backend' package as the Flask application root so that all
+    # entry points (backend.app, backend.seed, ...) share the same instance
+    # directory and database.
+    app = Flask('backend')
     app.extended_config = Config  # Load configuration from config.py
     app.config.from_object(Config)  # Load configuration from config.py
 

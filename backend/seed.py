@@ -16,8 +16,8 @@ from argon2 import PasswordHasher
 from faker import Faker
 from sqlalchemy import select
 
-from application import create_app, db
-from application.models import (
+from backend.application import create_app, db
+from backend.application.models import (
     Booking,
     BookingStatus,
     Course,

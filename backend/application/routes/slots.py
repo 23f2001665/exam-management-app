@@ -114,13 +114,13 @@ def all_slots():
     ]
     return jsonify({'slots': exports}), 200
 
-# GET ALL THE SLOTS OF A SPECIFIC EXAMINATION (ADMIN AND ASSIGNED EXAMINER)
+# GET ALL THE SLOTS OF A SPECIFIC EXAMINATION (ADMIN, ASSIGNED EXAMINER AND STUDENT)
 @slot_bp.route('/examination/<int:examination_id>', methods=['GET'])
-@require_roles('admin', 'examiner')
-@require_assigned_examiner('examination_id')
+@require_roles('admin', 'examiner', 'student')
 def get_examination_slots(examination_id):
     """
-    Get all slots of a specific examination by ID (admin and assigned examiner).
+    Get all slots of a specific examination by ID (admin, assigned examiner and
+    student - students need this to pick a slot to book).
 
     Args:
         examination_id (int): ID of the examination.
@@ -128,10 +128,14 @@ def get_examination_slots(examination_id):
     Returns:
         tuple: (response, status) with list of slots or error response.
     """
+    current_user = session.get('user')
     examination = db.session.get(Examination, examination_id)
 
     if not examination:
         return jsonify({'error': 'Examination not found'}), 404
+
+    if current_user['role'] == 'examiner' and examination.examiner_id != current_user['id']:
+        return jsonify({'error': 'Forbidden'}), 403
 
     slots = db.session.execute(
         select(ExaminationSlot).where(ExaminationSlot.examination_id == examination_id)

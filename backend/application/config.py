@@ -80,7 +80,7 @@ class Config:
     SESSION_TYPE = 'redis'  # Use Redis for session storage
     SESSION_REDIS = get_redis_client(db_number=0)  # Redis client for Flask-Session
     SESSION_REFRESH_EACH_REQUEST = True  # Refresh session expiration on each request
-    PERMANENT_SESSION_LIFETIME = 60  # Session lifetime in seconds 
+    PERMANENT_SESSION_LIFETIME = 60 * 60 * 8  # Session lifetime in seconds (8 hours)
 
     # SQLAlchemy configuration variables
     DATABASE_PATH = os.getenv('DATABASE_PATH', '/home/himanshu/Documents/IITM/mad2/project/exam-management-app/backend/')

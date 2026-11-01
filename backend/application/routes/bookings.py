@@ -61,6 +61,15 @@ def create_booking():
         slot.status = SlotStatus.FULL
 
     db.session.add(booking)
+    db.session.flush()  # assign booking.id for the evaluation stub below
+
+    evaluation = Evaluation(
+        booking_id=booking.id,
+        student_id=student_id,
+        examiner_id=slot.examiner_id,
+        status=EvaluationStatus.PENDING,
+    )
+    db.session.add(evaluation)
 
     try:
         db.session.commit()

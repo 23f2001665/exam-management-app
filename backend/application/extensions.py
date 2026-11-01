@@ -52,9 +52,9 @@ def cors_config(app):
     Args:
         app (flask.Flask): Flask application instance.
     """
-    CORS(app, 
+    CORS(app,
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
-        resource={r"/*": {"origins": "http://localhost:5173"}},
+        resources={r"/*": {"origins": ["http://localhost:5173", "http://localhost:4200"]}},
          supports_credentials=True
         )
     

@@ -30,7 +30,7 @@ def all_users():
     """
     stmt = select(User)
     users = db.session.execute(stmt).scalars().all()
-    exports = [user.export('email', 'first_name', 'last_name', 'role', 'department') for user in users]
+    exports = [user.export('id', 'email', 'first_name', 'last_name', 'role', 'department', 'is_active') for user in users]
     return jsonify({'users': exports}), 200
 
 # GET A SPECIFIC USER (ADMIN ONLY)
@@ -51,7 +51,7 @@ def get_user(user_id):
     if not user:
         return jsonify({'error': 'User not found'}), 404
     else:
-        exports = user.export('email', 'first_name', 'last_name', 'role', 'department')
+        exports = user.export('id', 'email', 'first_name', 'last_name', 'role', 'department', 'is_active')
         return jsonify({'user_info': exports}), 200
 
 # UPDATE A SPECIFIC USER (ADMIN ONLY)
@@ -192,5 +192,5 @@ def create_examiner():
         print(e)
         return jsonify({'error': 'An error occurred while creating the examiner'}), 500
     
-    exports = user.export('email', 'first_name', 'last_name', 'role', 'department')
+    exports = user.export('id', 'email', 'first_name', 'last_name', 'role', 'department')
     return jsonify({'message': 'Examiner created successfully', 'user': exports}), 201

@@ -2,6 +2,8 @@
 In this blueprint we handle evaluation management functionalities. It includes endpoints for submitting an evaluation, retrieving pending evaluations, retrieving all evaluations, and retrieving the evaluations of a specific examination. The routes are protected based on user roles (examiner and admin) to ensure that only authorized users can access or modify evaluation information.
 """
 
+from datetime import datetime
+
 from flask import Blueprint, request, jsonify, session, g
 from ..extensions import db, cache
 from ..models import *
@@ -49,17 +51,26 @@ def create_evaluation():
 
     remarks = data.get('remarks')
 
-    evaluation = Evaluation(
-        booking_id=booking.id,
-        student_id=booking.student_id,
-        examiner_id=examiner['id'],
-        total_marks=total_marks_value,
-        remarks=remarks,
-        status=EvaluationStatus.SUBMITTED,
+    # A pending evaluation stub is created when the booking is made; reuse it
+    # instead of inserting a duplicate row for the same booking.
+    evaluation = db.session.scalar(
+        select(Evaluation).where(Evaluation.booking_id == booking.id)
     )
-    booking.status = BookingStatus.COMPLETED
+    if evaluation is None:
+        evaluation = Evaluation(
+            booking_id=booking.id,
+            student_id=booking.student_id,
+            examiner_id=examiner['id'],
+        )
+        db.session.add(evaluation)
+    elif evaluation.status == EvaluationStatus.SUBMITTED:
+        return jsonify({'error': 'Evaluation already submitted for this booking'}), 400
 
-    db.session.add(evaluation)
+    evaluation.total_marks = total_marks_value
+    evaluation.remarks = remarks
+    evaluation.status = EvaluationStatus.SUBMITTED
+    evaluation.evaluation_date = datetime.now()
+    booking.status = BookingStatus.COMPLETED
 
     try:
         db.session.commit()

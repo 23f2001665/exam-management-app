@@ -42,11 +42,11 @@ def all_examinations():
 
 # GET A SPECIFIC EXAMINATION INFORMATION (ADMIN, EXAMINER AND STUDENT)
 @exam_bp.route('/<int:examination_id>', methods=['GET'])
-@require_roles('admin', 'examiner')
+@require_roles('admin', 'examiner', 'student')
 @cache.cached(timeout=300, key_prefix=lambda: f'examination_info_{request.view_args["examination_id"]}')  # Cache the result for 5 minutes
 def get_examination(examination_id):
     """
-    Get a specific examination by ID (admin and assigned examiner).
+    Get a specific examination by ID (admin, assigned examiner and student).
 
     Args:
         examination_id (int): ID of the examination to fetch.

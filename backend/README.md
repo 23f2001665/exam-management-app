@@ -43,7 +43,12 @@ uv run flask --app app run   # or: python app.py
 
 ## Celery
 
+`application.celery` is the bare Celery instance; it's only wired up with
+its Redis broker config and Flask app context when `create_app()` runs.
+Point the worker/beat at `celery_worker.py` instead, which creates the app
+before Celery starts:
+
 ```bash
-celery -A application.celery worker --loglevel=info
-celery -A application.celery beat --loglevel=info
+celery -A celery_worker.celery worker --loglevel=info
+celery -A celery_worker.celery beat --loglevel=info
 ```

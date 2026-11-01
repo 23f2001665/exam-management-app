@@ -87,7 +87,7 @@ def main() -> None:
         examiners = []
         for i in range(args.examiners):
             examiner = User(
-                email=f"examiner.{i}.{faker.unique.uuid4().hex[:8]}@exam.local",
+                email=f"examiner.{i}.{faker.unique.uuid4(cast_to=None).hex[:8]}@exam.local",
                 first_name=faker.first_name(),
                 last_name=faker.last_name(),
                 role=UserRoleName.EXAMINER,
@@ -102,7 +102,7 @@ def main() -> None:
         students = []
         for i in range(args.students):
             student = User(
-                email=f"student.{i}.{faker.unique.uuid4().hex[:8]}@exam.local",
+                email=f"student.{i}.{faker.unique.uuid4(cast_to=None).hex[:8]}@exam.local",
                 first_name=faker.first_name(),
                 last_name=faker.last_name(),
                 role=UserRoleName.STUDENT,
@@ -205,7 +205,7 @@ def main() -> None:
 
         # Create evaluations for the bookings
         evaluations_created = 0
-        for booking in db.session.scalars(select(Booking)).all():
+        for booking in db.session.execute(select(Booking)).unique().scalars().all():
             if evaluations_created >= args.evaluations:
                 break
             evaluation = Evaluation(
